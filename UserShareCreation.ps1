@@ -2,9 +2,14 @@
  Jon Shults
  Binnacle Technologies, LLC
  
- This script is intended to be an alternative to configuring a user's Home folder in active directory. It is not a full replacement for the process as other processes or applications can read the Home folder location from Active Directory, vs all this script does is create the user's folder with correct permissions.
+ This script is intended to be an alternative to configuring a user's Home folder in active directory.
+ It is not a full replacement for the process as other processes or applications can read the Home folder
+ location from Active Directory, vs all this script does is create the user's folder with correct permissions.
  You will want to invest the time to understand the difference and how that may impact your organization.
-
+ 
+ To use, add this script as a logon powershell script to your drive map GPO, and be sure to set the GPO to run
+ powershell scripts first. Be sure your UserShare directory exists with with proper permissions for users to create.
+ 
  We also populate the eventlog with failures, and have commented those lines out by default.
 
  Last Updated 11/18/2019
