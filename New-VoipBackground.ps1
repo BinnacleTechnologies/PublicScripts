@@ -4,11 +4,15 @@
 
     .DESCRIPTION
         This script uses the native .NET API to create a blank background, colors it if desired, resizes a provided image file, and centers the logo based on parameters defined.
-        Example parameters for a Yealink T46S are to make the logo as large as possible without it being hidden behind Line Key labels.
+        If the -Model parameter and the known models csv import fails, it will prompt to create a new sample csv.
+        
+        Example parameters for my personal preference on a Yealink T46S where the logo is as large as possible without it being able to overlayed by Line Key labels.
 
-        The script assumes you're referencing a KnownPhoneModels.csv in the working directory, but you can also call an existing one.
+        The script assumes you're referencing a KnownPhoneModels.csv in the working directory, but you can also call an existing one with the -ModelList parameter.
         
         Source image formats supported: BMP, GIF, JPEG, PNG, TIFF
+
+        Color options are limited to system-defined colors, see https://docs.microsoft.com/en-us/dotnet/api/system.drawing.color?redirectedfrom=MSDN&view=netframework-4.8#properties
  
     .EXAMPLE
         .\New-VoipBackground.ps1 -logo "Company Logo.png" -Outputfile "c:\Temp\PhoneLogo.jpg" -Model "Yealink T46S"
@@ -16,9 +20,9 @@
         Takes the source logo, scales it based on contents of knownphones.csv and outputs c:\Temp\PhoneLogo.jpg with a clear background.
 
     .EXAMPLE
-        .\New-VoipBackground.ps1 -logo "Company Logo.png" -Outputfile "c:\Temp\PhoneLogo.jpg" -ScreenWidth 400 -screenheight 250 -logowidth 100 -logoheight 100 -color "black"
+        .\New-VoipBackground.ps1 -logo "Company Logo.png" -Outputfile "c:\Temp\PhoneLogo.jpg" -ScreenWidth 400 -ScreenHeight 250 -LogoWidth 100 -LogoHeight 100 -Color "Black"
 
-        Takes the source logo, scales it based on the manually defined parameters, and outputs PhoneLogo.jpg with a black background. Color options are limited to system-defined colors, see https://docs.microsoft.com/en-us/dotnet/api/system.drawing.color?redirectedfrom=MSDN&view=netframework-4.8#properties
+        Takes the source logo, scales it based on the manually defined parameters, and outputs PhoneLogo.jpg with a black background. 
 
     .LINK
         Author: Jon Shults - https://binnacle-it.com
