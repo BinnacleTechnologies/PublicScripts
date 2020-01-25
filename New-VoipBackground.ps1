@@ -3,9 +3,9 @@
         Takes an image (typically a company logo), resizes and centers it on a background scaled to fit VOIP phone screens.
 
     .DESCRIPTION
-        This script uses the native .NET API to create a blank background, colors it if desired, resizes a provided image file, and centers the logo based on parameters defined.
+        This script uses the native .NET API to create a blank background, colors it if desired, resizes a provided image file while preserving the aspect ratio, and centers the logo based on parameters defined.
         If the -Model parameter and the known models csv import fails, it will prompt to create a new sample csv.
-        
+
         Example parameters for my personal preference on a Yealink T46S where the logo is as large as possible without it being able to overlayed by Line Key labels.
 
         The script assumes you're referencing a KnownPhoneModels.csv in the working directory, but you can also call an existing one with the -ModelList parameter.
