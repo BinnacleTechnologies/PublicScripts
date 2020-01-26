@@ -22,7 +22,8 @@
     .EXAMPLE
         .\New-VoipBackground.ps1 -logo "Company Logo.png" -Outputfile "c:\Temp\PhoneLogo.jpg" -ScreenWidth 400 -ScreenHeight 250 -LogoWidth 100 -LogoHeight 100 -Color "Black"
 
-        Takes the source logo, scales it based on the manually defined parameters, and outputs PhoneLogo.jpg with a black background. 
+        Takes the source logo, scales it based on the manually defined parameters, and outputs PhoneLogo.jpg with a black background. Remember that this script preserves the logo's aspect ratio, so
+        the values for -LogoWidth and -LogoHeight are maximum values, not explicit settings.
 
     .LINK
         Author: Jon Shults - https://binnacle-it.com
@@ -58,13 +59,14 @@ param(
     [string]$Color
 )
 
+# If -Model is used, imports the known models and pull the associated information
 If ($PsCmdlet.ParameterSetName -match "ByModel") {
     Try {
         $KnownModels = Import-Csv $Modellist
     }
     Catch {
-        Write-Host "Import of $($ModelList) failed. Verify that ($($ModelList) exists, include the full path to file as part of the -ModelList parameter, generate the file by specifying dimensions." -ForegroundColor Red
-        $create  = Read-Host "Would you like a new file created? (Y/N)"
+        Write-Host "Import of $($ModelList) failed. Verify that ($($ModelList) exists, and  try including the full path to file as part of the -ModelList parameter." -ForegroundColor Red
+        $create = Read-Host "Would you like a new file created? (Y/N)"
         Switch ($Create) {
             Y {
                 "Model,ScreenWidth,ScreenHeight,LogoWidth,LogoHeight" + "`r`n" + "Yealink T46S,480,272,280,160" | Out-File -FilePath $ModelList
@@ -90,9 +92,14 @@ If ($PsCmdlet.ParameterSetName -match "ByModel") {
             $ScreenHeight = $Phone.ScreenHeight
             $LogoWidth = $Phone.LogoWidth
             $LogoHeight = $Phone.LogoHeight
+            $Match = $true
             break
         }
-        if (!$ScreenWidth -or !$ScreenHeight -or !$MaxLogoWidth -or $MaxLogoHeight) {
+        If (!$Match) {
+            Write-Output "No entry for $($Model) was found in $($Modellist). Verify that you're specifying a model that precisely matches an existing entry."
+            Exit
+        }
+        if (!$ScreenWidth -or !$ScreenHeight -or !$LogoWidth -or $LogoHeight) {
             Write-Output "($($ModelList) either contains incomplete information for $($Model) or is impropperly formatted. Ensure it contains information about the screen size and logo dimensions, then try again."
             Exit
         }
@@ -116,7 +123,7 @@ If ($Color) {
     }
 }
 
-# Calculate image size and positioning
+# Calculate if we're scaling based on width or hight, as well as how large the final logo will be
 $Ratio = $PhoneLogo.Width / $LogoWidth
 If (($PhoneLogo.Height / $Ratio) -gt $LogoHeight) {
     # Logo scaled based on width will be too tall
@@ -132,10 +139,17 @@ Else {
     $finalWidth = $LogoWidth
 }
 
-# Calculate logo position, place, and save
+# Calculate logo position, place, and output
 $StartingY = (($ScreenHeight / 2) - ($FinalHeight / 2))
 $StartingX = (($ScreenWidth / 2) - ($FinalWidth / 2))
 $graph = [System.Drawing.Graphics]::FromImage($BG)
 $graph.DrawImage($PhoneLogo, $startingX, $StartingY, $FinalWidth, $FinalHeight)
 Write-Output "Applying a $($finalWidth)x$($FinalHeight) logo starting at $($StartingX),$($StartingY), and saving to $($outputfile)."
 $BG.Save($OutputFile)
+
+# Final check for success
+$FinalSuccess = Test-Path $OutputFile
+If (!$FinalSuccess) {
+    Write-Output "Creating final output file failed. Verify you have write access to $($OutputFile)."
+    Exit
+}
