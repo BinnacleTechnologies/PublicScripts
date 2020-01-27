@@ -59,6 +59,14 @@ param(
     [string]$Color
 )
 
+# Checks if Outputfile parameter includes a drive letter designation, if not, we prefix the .\ so we can assume the working directory.
+If ($OutputFile.IndexOf(":") -eq 2) {
+    Write-Output "Colon present in second character index 2, drive letter assumed."
+} Else {
+    $OutputFile = ".\" + "$OutputFile"
+    Write-Output "Updated OutputFile value is $($Outputfile)"
+}
+
 # If -Model is used, imports the known models and pull the associated information
 If ($PsCmdlet.ParameterSetName -match "ByModel") {
     Try {
@@ -95,14 +103,15 @@ If ($PsCmdlet.ParameterSetName -match "ByModel") {
             $Match = $true
             break
         }
-        If (!$Match) {
-            Write-Output "No entry for $($Model) was found in $($Modellist). Verify that you're specifying a model that precisely matches an existing entry."
-            Exit
-        }
-        if (!$ScreenWidth -or !$ScreenHeight -or !$LogoWidth -or $LogoHeight) {
-            Write-Output "($($ModelList) either contains incomplete information for $($Model) or is impropperly formatted. Ensure it contains information about the screen size and logo dimensions, then try again."
-            Exit
-        }
+    }
+    If (!$Match) {
+        Write-Output "No entry for $($Model) was found in $($Modellist). Verify that you're specifying a model that precisely matches an existing entry."
+        Exit
+    }
+    # The below check seems to be  very unreliable for some reason
+    If ($Match -and (!$ScreenWidth -or !$ScreenHeight -or !$LogoWidth -or $LogoHeight)) {
+        Write-Output "Match value is $($Match), but ($($ModelList) either contains incomplete information for $($Model) or is impropperly formatted. What we show is Screenwidth: $($ScreenWidth), ScreenHeight: $($ScreenHeight), LogoWidth: $($LogoWidth), LogoHeight: $($LogoHeight). Ensure it contains information about the screen size and logo dimensions, then try again."
+        Exit
     }
 }
                 
@@ -150,6 +159,6 @@ $BG.Save($OutputFile)
 # Final check for success
 $FinalSuccess = Test-Path $OutputFile
 If (!$FinalSuccess) {
-    Write-Output "Creating final output file failed. Verify you have write access to $($OutputFile)."
+    Write-Output "Creating final output file failed. Try using the full output path in the -Outputfile parameter, and verify you have write access to $($OutputFile)."
     Exit
 }
